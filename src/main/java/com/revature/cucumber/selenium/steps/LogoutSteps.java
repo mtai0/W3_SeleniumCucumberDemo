@@ -5,6 +5,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -15,33 +16,33 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-public class LoginSteps {
+public class LogoutSteps {
     private static WebDriver driver;
 
-    @Given("User is on homepage")
-    public void userIsOnHomepage() {
-        WebDriverManager.chromedriver().setup();;
+    @Given("user is on the site homepage")
+    public void userIsOnTheSiteHomepage() {
+        WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver();
         driver.get("https://demoqa.com/");
         driver.manage().window().maximize();
     }
 
-    @When("User navigates to login page")
-    public void userNavigatesToLoginPage() {
+    @When("user navigates to the login page")
+    public void userNavigatesToTheLoginPage() {
         driver.get("https://demoqa.com/login");
     }
 
-    @And("User enters Username and Password")
-    public void userEntersUsernameAndPassword() {
+    @And("user enters {string} and {string}")
+    public void userEntersAnd(String username, String password) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         wait.until(ExpectedConditions.elementToBeClickable(
                         driver.findElement(By.cssSelector("input[id='userName']"))
                 )
-        ).sendKeys("testuser");
+        ).sendKeys(username);
         wait.until(ExpectedConditions.elementToBeClickable(
                         driver.findElement(By.cssSelector("input[id='password']"))
                 )
-        ).sendKeys("Password@123");
+        ).sendKeys(password);
 
         JavascriptExecutor js = (JavascriptExecutor)driver;
         js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
@@ -52,30 +53,30 @@ public class LoginSteps {
         ).click();
     }
 
-    @Then("Message displayed Login Successful")
-    public void messageDisplayedLoginSuccessful() {
+    @Then("user is logged in")
+    public void userIsLoggedIn() {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
         WebElement uname = driver.findElement(By.cssSelector("label[id='userName-value']"));
-        String unameValue = uname.getText();
-        System.out.println("User: " + unameValue);
-
-        driver.quit();
+        System.out.println("Username found, login confirmed.");
     }
 
-    @And("User enters {string} and {string}")
-    public void userEntersAnd(String username, String password) {
+    @Given("user is on their profile page")
+    public void userIsOnTheirProfilePage() {
+        driver.get("https://demoqa.com/profile");
+    }
+
+    @When("user clicks the logout button")
+    public void userClicksTheLogoutButton() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
-        wait.until(ExpectedConditions.elementToBeClickable(
-                driver.findElement(By.cssSelector("input[id='userName']"))
-                )
-        ).sendKeys(username);
-        wait.until(ExpectedConditions.elementToBeClickable(
-                        driver.findElement(By.cssSelector("input[id='password']"))
-                )
-        ).sendKeys(password);
-        wait.until(ExpectedConditions.elementToBeClickable(
-                        driver.findElement(By.cssSelector("button[id='login']"))
-                )
-        ).click();
+        WebElement logoutButton = driver.findElement(By.xpath("//button[text()='Log out']"));
+        wait.until(ExpectedConditions.elementToBeClickable(logoutButton)).click();
+    }
+
+    @Then("user is logged out")
+    public void userIsLoggedOut() {
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+        WebElement uname = driver.findElement(By.cssSelector("button[id='login']"));
+        System.out.println("Login button found, logout confirmed!");
+        driver.quit();
     }
 }
